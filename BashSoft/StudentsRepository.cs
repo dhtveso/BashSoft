@@ -82,7 +82,28 @@ namespace BashSoft
             {
                 OutputWriter.DisplayException(ExceptionMessages.InexistingStudentInDataBase);
             }
+
             return false;
+        }
+
+        public static void GetStudentScoresFromCourse(string courseName, string username)
+        {
+            if (IsQueryForStudentPossiblе(courseName, username))
+            {
+                OutputWriter.PrintStudent(new KeyValuePair<string, List<int>>(username, studentsByCourse[courseName][username]));
+            }
+        }
+
+        public static void GetAllStudentsFromCourse(string courseName)
+        {
+            if (IsQueryForCoursePossible(courseName))
+            {
+                OutputWriter.WriteMessageOnNewLine($"{courseName}");
+                foreach (var studentMarksEntry in studentsByCourse[courseName])
+                {
+                    OutputWriter.PrintStudent(studentMarksEntry);
+                }
+            }
         }
     }
 }

@@ -10,7 +10,10 @@ namespace BashSoft
     {
         public static void Main()
         {
-            IOManager.TraverseDirectory(@"D:\SoftUni");
+            //IOManager.TraverseDirectory(@"D:\SoftUni");
+            StudentsRepository.InitializeData();
+            StudentsRepository.GetStudentScoresFromCourse("Unity", "Ivan");
+
         }
     }
 }
