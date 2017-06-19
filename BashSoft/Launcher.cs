@@ -10,7 +10,7 @@ namespace BashSoft
     {
         public static void Main()
         {
-            
+            IOManager.TraverseDirectory(@"D:\SoftUni");
         }
     }
 }
