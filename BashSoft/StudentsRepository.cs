@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace BashSoft
 {
@@ -8,13 +10,13 @@ namespace BashSoft
         public static bool isDataInitialized = false;
         private static Dictionary<string, Dictionary<string, List<int>>> studentsByCourse;
 
-        public static void InitializeData()
+        public static void InitializeData(string fileName)
         {
-            if (!StudentsRepository.isDataInitialized)
+            if (!isDataInitialized)
             {
                 OutputWriter.WriteMessageOnNewLine("Reading data...");
                 studentsByCourse = new Dictionary<string, Dictionary<string, List<int>>>();
-                ReadData();
+                ReadData(fileName);
             }
             else
             {
@@ -22,32 +24,47 @@ namespace BashSoft
             }
         }
 
-        private static void ReadData()
+        private static void ReadData(string fileName)
         {
-            string input = Console.ReadLine();
+            string path = SessionData.currentPath + "\\" + fileName;
 
-            while (!string.IsNullOrEmpty(input))
+            if (File.Exists(path))
             {
-                string[] token = input.Split(' ');
-                string course = token[0];
-                string student = token[1];
-                int mark = int.Parse(token[2]);
+                string pattern = @"([A-Z][A-Za-z+#]*_[A-Z][a-z]{2}_\d{4})\s+([A-Z][a-z]{0,3}\d{2}_\d{2,4})\s+(\d+)";
+                Regex rgx = new Regex(pattern);
+                string[] allInputLines = File.ReadAllLines(path);
 
-                if (!studentsByCourse.ContainsKey(course))
+                for (int line = 0; line < allInputLines.Length; line++)
                 {
-                    studentsByCourse[course] = new Dictionary<string, List<int>>();
-                }
-                if (!studentsByCourse[course].ContainsKey(student))
-                {
-                    studentsByCourse[course][student] = new List<int>();
-                }
+                    if (!string.IsNullOrEmpty(allInputLines[line]) && rgx.IsMatch(allInputLines[line]))
+                    {
+                        Match currentMatch = rgx.Match(allInputLines[line]);
+                        string courseName = currentMatch.Groups[1].Value;
+                        string username = currentMatch.Groups[2].Value;
+                        int studentScoreOnTask;
+                        bool hasParsedScore = int.TryParse(currentMatch.Groups[3].Value, out studentScoreOnTask);
 
-                studentsByCourse[course][student].Add(mark);
-                input = Console.ReadLine();
+                        if (hasParsedScore && studentScoreOnTask >= 0 && studentScoreOnTask <= 100)
+                        {
+                            if (!studentsByCourse.ContainsKey(courseName))
+                            {
+                                studentsByCourse.Add(courseName, new Dictionary<string, List<int>>());
+                            }
+
+                            if (!studentsByCourse[courseName].ContainsKey(username))
+                            {
+                                studentsByCourse[courseName].Add(username, new List<int>());
+                            }
+
+                            studentsByCourse[courseName][username].Add(studentScoreOnTask);
+                        }
+                    }
+                }
             }
-
-            isDataInitialized = true;
-            OutputWriter.WriteMessageOnNewLine("Data read!");
+            else
+            {
+                OutputWriter.DisplayException(ExceptionMessages.InvalidPath);
+            }
         }
 
         private static bool IsQueryForCoursePossible(string courseName)
