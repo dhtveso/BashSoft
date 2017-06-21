@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BashSoft
 {
@@ -9,15 +10,15 @@ namespace BashSoft
         {
             if (wantedFilter == "excellent")
             {
-                FilterAndTake(wantedData, ExcellentFilter, studentsToTake);
+                FilterAndTake(wantedData, x => x >= 5, studentsToTake);
             }
             else if (wantedFilter == "average")
             {
-                FilterAndTake(wantedData, AverageFilter, studentsToTake);
+                FilterAndTake(wantedData, x => x < 5 && x >= 3.50, studentsToTake);
             }
             else if (wantedFilter == "poor")
             {
-                FilterAndTake(wantedData, PoorFilter, studentsToTake);
+                FilterAndTake(wantedData, x => x < 3.50, studentsToTake);
             }
             else
             {
@@ -28,6 +29,7 @@ namespace BashSoft
         private static void FilterAndTake(Dictionary<string, List<int>> wantedData, Predicate<double> givenFilter, int studentsToTake)
         {
             int counterForPrinted = 0;
+
             foreach (var userName_Points in wantedData)
             {
                 if (counterForPrinted == studentsToTake)
@@ -35,7 +37,7 @@ namespace BashSoft
                     break;
                 }
 
-                double averageMark = Average(userName_Points.Value);
+                double averageMark = userName_Points.Value.Average();
 
                 if (givenFilter(averageMark))
                 {
@@ -43,35 +45,6 @@ namespace BashSoft
                     counterForPrinted++;
                 }
             }
-        }
-
-        private static bool ExcellentFilter(double mark)
-        {
-            return mark >= 5.0;
-        }
-
-        private static bool AverageFilter(double mark)
-        {
-            return mark < 5.0 && mark >= 3.5;
-        }
-
-        private static bool PoorFilter(double mark)
-        {
-            return mark < 3.5;
-        }
-
-        private static double Average(List<int> scoresOnTasks)
-        {
-            int totalScore = 0;
-            foreach (var score in scoresOnTasks)
-            {
-                totalScore += score;
-            }
-
-            var percetageOfAll = totalScore / scoresOnTasks.Count * 100;
-            var mark = percetageOfAll * 4 + 2;
-
-            return mark;
         }
     }
 }
