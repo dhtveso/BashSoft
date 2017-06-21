@@ -65,26 +65,31 @@ namespace BashSoft
             {
                 OutputWriter.DisplayException(ExceptionMessages.InvalidPath);
             }
+
+            isDataInitialized = true;
+            OutputWriter.WriteMessageOnNewLine("Data read!");
         }
 
         private static bool IsQueryForCoursePossible(string courseName)
         {
             if (isDataInitialized)
             {
+                if (studentsByCourse.ContainsKey(courseName))
+                {
+                    return true;
+                }
+                else
+                {
+                    OutputWriter.DisplayException(ExceptionMessages.InexistingCourseInDataBase);
+                }
+
                 return true;
             }
             else
             {
                 OutputWriter.DisplayException(ExceptionMessages.DataNotInitializedExceptionMessage);
             }
-            if (studentsByCourse.ContainsKey(courseName))
-            {
-                return true;
-            }
-            else
-            {
-                OutputWriter.DisplayException(ExceptionMessages.InexistingCourseInDataBase);
-            }
+
 
             return false;
         }
